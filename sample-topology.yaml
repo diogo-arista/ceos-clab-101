@@ -19,4 +19,4 @@ topology:
 
   # Optional: Define links under the 'links:' key
   links:
-    - endpoints: ["ceos1:Ethernet1", "ceos2:Ethernet1"]
+    - endpoints: ["ceos1:eth1", "ceos2:eth1"]

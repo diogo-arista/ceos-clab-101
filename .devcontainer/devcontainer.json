@@ -2,10 +2,8 @@
 {
     // Name for the Dev Container configuration
     "name": "Containerlab + Ansible AVD Dev Environment",
-
     // Use a minimal Ubuntu base image provided by Microsoft for dev containers.
     "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
-
     // Features to add to the container.
     "features": {
         // Installs common utilities (git, curl, etc.), creates 'admin' user with sudo access.
@@ -30,38 +28,35 @@
             "installTools": true // Ensures pip, setuptools, wheel, venv are available
         }
     },
-
     // Run container in privileged mode - necessary for Docker-in-Docker and Containerlab.
     "runArgs": [
         "--privileged"
     ],
-
     // Set the default user for the container and VS Code terminal.
     "remoteUser": "admin",
-
     // Set environment variables specifically for VS Code and its processes.
     // Prepending the venv bin path to PATH helps VS Code extensions find tools.
     "remoteEnv": {
-       "PATH": "/home/admin/ansible-venv/bin:${containerEnv:PATH}"
+        "PATH": "/home/admin/ansible-venv/bin:${containerEnv:PATH}"
     },
-
+    "hostRequirements": {
+        "cpus": 4,
+        "memory": "16gb",
+        "storage": "32gb"
+      },
     // Command to run after the container is created.
     // Executes the post-create setup script located in the same directory.
     "postCreateCommand": "bash .devcontainer/post-create.sh",
-
     // Commands to run after attaching to the container (optional).
     // "postAttachCommand": "containerlab version && ansible --version",
-
     // VS Code specific settings
     "customizations": {
         "vscode": {
             // Extensions recommended for this environment
             "extensions": [
-                "ms-azuretools.vscode-docker",      // Docker management
-                "redhat.vscode-yaml",               // YAML editing
-                "ms-vscode-remote.remote-containers",// Core Dev Containers extension
-                "ms-python.python",                 // Python support (intellisense, debugging)
-                "redhat.ansible"                    // Ansible language support (syntax, snippets)
+                "ms-azuretools.vscode-docker", // Docker management
+                "ms-vscode-remote.remote-containers", // Core Dev Containers extension
+                "ms-python.python", // Python support (intellisense, debugging)
             ],
             // Settings to apply inside the container
             "settings": {
@@ -71,30 +66,22 @@
                         "path": "/usr/bin/zsh"
                     }
                 },
-                // Associate YAML files with Ansible for better linting/syntax highlighting
-                "files.associations": {
-                    "*.yml": "ansible",
-                    "*.yaml": "ansible"
-                },
                 // Python extension settings (optional)
                 "python.defaultInterpreterPath": "/home/admin/ansible-venv/bin/python", // Point to venv python
                 "python.linting.enabled": true,
                 "python.linting.pylintEnabled": false, // Using ansible-lint/yamllint primarily
                 "python.linting.flake8Enabled": false, // Using ansible-lint/yamllint primarily
-
                 // Ansible extension settings
                 "ansible.python.interpreterPath": "/home/admin/ansible-venv/bin/python", // Tell Ansible extension about venv python
                 // Explicitly tell the Ansible extension where to find ansible-lint
                 "ansible.ansibleLint.path": "/home/admin/ansible-venv/bin/ansible-lint",
                 // Explicitly tell the Ansible extension where to find ansible (might help locate ansible-config)
-                "ansible.path": "/home/admin/ansible-venv/bin/ansible"
+                "ansible.path": "/home/admin/ansible-venv/bin/ansible",
             }
         }
     },
-
     // Forward ports if needed (e.g., if Containerlab exposes specific services)
     // "forwardPorts": [],
-
     // Mount the workspace folder into the container
     "workspaceFolder": "/workspace",
     "workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind,consistency=cached"
