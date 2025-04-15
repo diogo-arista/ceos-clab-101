@@ -29,10 +29,22 @@ source /home/admin/ansible-venv/bin/activate
 
 echo "Upgrading pip..."
 pip install --upgrade pip
-echo "Installing ansible-core, AVD dependencies, and linters..."
-pip install ansible-core==2.15.* pyavd pyeapi netaddr yamllint ansible-lint
-echo "Installing Ansible collections..."
-ansible-galaxy collection install arista.avd arista.eos
+echo "Installing ansible-core, AVD dependencies, linters, and required libraries..."
+# Keep ansible-core pinned to 2.15.*
+# Add missing AVD Python dependencies and pin jsonschema
+# Constrain md-toc version to avoid breaking changes in newer versions
+pip install ansible-core==2.15.* pyavd pyeapi netaddr yamllint ansible-lint \
+    'jsonschema==4.17.3' \
+    'treelib>=1.5.5' \
+    'cvprac>=1.3.1' \
+    'paramiko>=2.7.1' \
+    'md-toc>=7.1.0,<9.0.0' # Pinned md-toc below v9.0.0
+
+echo "Installing Ansible collections (pinning versions for compatibility)..."
+# Install community.general to provide the 'yaml' callback plugin
+ansible-galaxy collection install community.general
+# Install specific version ranges for arista collections compatible with ansible-core 2.15
+ansible-galaxy collection install 'arista.avd:>=4.0.0,<5.0.0' 'arista.eos:>=5.0.0,<7.0.0'
 
 echo "Python packages and Ansible collections installed."
 
