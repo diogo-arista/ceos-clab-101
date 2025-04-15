@@ -1,36 +1,37 @@
 // .devcontainer/devcontainer.json
 {
     // Name for the Dev Container configuration
-    "name": "Containerlab Dev Environment",
+    "name": "Containerlab + Ansible AVD Dev Environment",
 
     // Use a minimal Ubuntu base image provided by Microsoft for dev containers.
-    // You can change the Ubuntu version (e.g., jammy, focal) if needed.
     "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
 
     // Features to add to the container.
     "features": {
-        // Installs common utilities, creates a non-root user ('admin' in this case),
-        // and grants sudo access.
+        // Installs common utilities (git, curl, etc.), creates 'admin' user with sudo access.
         "ghcr.io/devcontainers/features/common-utils:2": {
-            "username": "admin", // Create user 'admin'
-            "uid": "1000",       // Set user ID
-            "gid": "1000",       // Set group ID
-            "installZsh": "true", // Optionally install Zsh
-            "installOhMyZsh": "true", // Optionally install Oh My Zsh for a better shell experience
-            "upgradePackages": "true" // Keep packages up-to-date
+            "username": "admin",
+            "uid": "1000",
+            "gid": "1000",
+            "installZsh": "true", // Keep Zsh for better shell experience
+            "installOhMyZsh": "true",
+            "upgradePackages": "true"
         },
-        // Installs the Docker/Moby CLI and Engine within the container.
-        // Required for Containerlab to function.
+        // Installs Docker-in-Docker, required for Containerlab.
         "ghcr.io/devcontainers/features/docker-in-docker:2": {
-            "version": "latest",     // Use the latest Docker version
-            "moby": true,            // Use the Moby engine (open source upstream for Docker)
-            "installDockerBuildx": true, // Install Docker Buildx
-            "installDockerComposeSwitch": true // Install Docker Compose v2
+            "version": "latest",
+            "moby": true,
+            "installDockerBuildx": true,
+            "installDockerComposeSwitch": true
+        },
+        // Installs Python, pip, and virtual environment tools.
+        "ghcr.io/devcontainers/features/python:1": {
+            "version": "3.11", // Specify Python version (or use "latest")
+            "installTools": true // Ensures pip, setuptools, wheel, venv are available
         }
     },
 
-    // Run container in privileged mode - necessary for Docker-in-Docker and network manipulation by Containerlab.
-    // Be aware of the security implications of running in privileged mode.
+    // Run container in privileged mode - necessary for Docker-in-Docker and Containerlab.
     "runArgs": [
         "--privileged"
     ],
@@ -38,20 +39,30 @@
     // Set the default user for the container and VS Code terminal.
     "remoteUser": "admin",
 
+    // Set environment variables specifically for VS Code and its processes.
+    // Prepending the venv bin path to PATH helps VS Code extensions find tools.
+    "remoteEnv": {
+       "PATH": "/home/admin/ansible-venv/bin:${containerEnv:PATH}"
+    },
+
     // Commands to run after the container is created.
-    "postCreateCommand": "sudo bash -c \"$(curl -sL https://get.containerlab.dev)\" && echo 'Containerlab installation complete.'",
+    // Combined into a single string, separated by '&&'.
+    // Modified the echo commands writing to .zshrc for reliability.
+    "postCreateCommand": "sudo bash -c \"$(curl -sL https://get.containerlab.dev)\" && sudo mkdir -p /home/admin/ansible-venv && sudo chown admin:admin /home/admin/ansible-venv && python3 -m venv /home/admin/ansible-venv && bash -c 'source /home/admin/ansible-venv/bin/activate && pip install --upgrade pip && pip install ansible-core==2.15.* pyavd pyeapi netaddr yamllint ansible-lint && ansible-galaxy collection install arista.avd arista.eos && echo \"Python venv created and Ansible/AVD installed.\" && echo \"\" >> /home/admin/.zshrc && echo \"# Activate Ansible virtual environment\" >> /home/admin/.zshrc && echo \"source /home/admin/ansible-venv/bin/activate\" >> /home/admin/.zshrc && echo \"Post-create setup finished.\"'",
 
     // Commands to run after attaching to the container (optional).
-    // "postAttachCommand": "containerlab version",
+    // "postAttachCommand": "containerlab version && ansible --version",
 
     // VS Code specific settings
     "customizations": {
         "vscode": {
             // Extensions recommended for this environment
             "extensions": [
-                "ms-azuretools.vscode-docker",    // Docker management
-                "redhat.vscode-yaml",             // YAML editing (for topology files)
-                "ms-vscode-remote.remote-containers" // Core Dev Containers extension (should be installed anyway)
+                "ms-azuretools.vscode-docker",      // Docker management
+                "redhat.vscode-yaml",               // YAML editing
+                "ms-vscode-remote.remote-containers",// Core Dev Containers extension
+                "ms-python.python",                 // Python support (intellisense, debugging)
+                "redhat.ansible"                    // Ansible language support (syntax, snippets)
             ],
             // Settings to apply inside the container
             "settings": {
@@ -60,7 +71,24 @@
                     "zsh": {
                         "path": "/usr/bin/zsh"
                     }
-                }
+                },
+                // Associate YAML files with Ansible for better linting/syntax highlighting
+                "files.associations": {
+                    "*.yml": "ansible",
+                    "*.yaml": "ansible"
+                },
+                // Python extension settings (optional)
+                "python.defaultInterpreterPath": "/home/admin/ansible-venv/bin/python", // Point to venv python
+                "python.linting.enabled": true,
+                "python.linting.pylintEnabled": false, // Using ansible-lint/yamllint primarily
+                "python.linting.flake8Enabled": false, // Using ansible-lint/yamllint primarily
+
+                // Ansible extension settings
+                "ansible.python.interpreterPath": "/home/admin/ansible-venv/bin/python", // Tell Ansible extension about venv python
+                // Explicitly tell the Ansible extension where to find ansible-lint
+                "ansible.ansibleLint.path": "/home/admin/ansible-venv/bin/ansible-lint",
+                // Explicitly tell the Ansible extension where to find ansible (might help locate ansible-config)
+                "ansible.path": "/home/admin/ansible-venv/bin/ansible"
             }
         }
     },
