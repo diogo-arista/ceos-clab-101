@@ -1,0 +1,4 @@
+# .gitattributes
+# Ensure consistent line endings for text files across different OS.
+# Force LF (Unix-style) line endings for better compatibility within the Linux container.
+* text=auto eol=lf

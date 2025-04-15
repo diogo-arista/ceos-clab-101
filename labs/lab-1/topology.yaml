@@ -1,0 +1,41 @@
+# Sample Containerlab Topology: simple-two-ceos.clab.yml
+# This file defines a basic network topology using Arista cEOS nodes.
+
+# Name of the lab deployment
+name: simple-two-ceos
+
+# Topology definition
+topology:
+  # Define the network nodes
+  nodes:
+    # Node 1: Arista cEOS container named 'ceos1'
+    ceos1:
+      kind: ceos            # Type of node (Arista cEOS)
+      # IMPORTANT: Replace 'your-ceos-image:latest' with the actual cEOS image
+      # you have built or imported (e.g., ceos:4.28.0F).
+      # Containerlab does not bundle vendor images.
+      image: your-ceos-image:latest
+
+    # Node 2: Arista cEOS container named 'ceos2'
+    ceos2:
+      kind: ceos            # Type of node
+      # IMPORTANT: Use the same cEOS image name as above.
+      image: your-ceos-image:latest
+
+  # Define the links between nodes
+  links:
+    # Connect ceos1's Ethernet1 interface to ceos2's Ethernet1 interface
+    # Note: cEOS interface names typically start with Ethernet1
+    - endpoints: ["ceos1:Ethernet1", "ceos2:Ethernet1"]
+
+# --- How to use ---
+# 1. Make sure you have a cEOS container image available in your Docker environment.
+#    You might need to download it from Arista's website (requires account) and import it,
+#    or build it if you have the necessary source files.
+# 2. Update the 'image:' lines above with the correct name and tag of your cEOS image.
+# 3. Save this content as 'simple-two-ceos.clab.yml' (or similar).
+# 4. Run the topology using sudo:
+#    sudo containerlab deploy -t simple-two-ceos.clab.yml
+#
+# To destroy the lab:
+# sudo containerlab destroy -t simple-two-ceos.clab.yml --cleanup

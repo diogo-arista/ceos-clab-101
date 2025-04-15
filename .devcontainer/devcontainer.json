@@ -1,0 +1,74 @@
+// .devcontainer/devcontainer.json
+{
+    // Name for the Dev Container configuration
+    "name": "Containerlab Dev Environment",
+
+    // Use a minimal Ubuntu base image provided by Microsoft for dev containers.
+    // You can change the Ubuntu version (e.g., jammy, focal) if needed.
+    "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
+
+    // Features to add to the container.
+    "features": {
+        // Installs common utilities, creates a non-root user ('admin' in this case),
+        // and grants sudo access.
+        "ghcr.io/devcontainers/features/common-utils:2": {
+            "username": "admin", // Create user 'admin'
+            "uid": "1000",       // Set user ID
+            "gid": "1000",       // Set group ID
+            "installZsh": "true", // Optionally install Zsh
+            "installOhMyZsh": "true", // Optionally install Oh My Zsh for a better shell experience
+            "upgradePackages": "true" // Keep packages up-to-date
+        },
+        // Installs the Docker/Moby CLI and Engine within the container.
+        // Required for Containerlab to function.
+        "ghcr.io/devcontainers/features/docker-in-docker:2": {
+            "version": "latest",     // Use the latest Docker version
+            "moby": true,            // Use the Moby engine (open source upstream for Docker)
+            "installDockerBuildx": true, // Install Docker Buildx
+            "installDockerComposeSwitch": true // Install Docker Compose v2
+        }
+    },
+
+    // Run container in privileged mode - necessary for Docker-in-Docker and network manipulation by Containerlab.
+    // Be aware of the security implications of running in privileged mode.
+    "runArgs": [
+        "--privileged"
+    ],
+
+    // Set the default user for the container and VS Code terminal.
+    "remoteUser": "admin",
+
+    // Commands to run after the container is created.
+    "postCreateCommand": "sudo bash -c \"$(curl -sL https://get.containerlab.dev)\" && echo 'Containerlab installation complete.'",
+
+    // Commands to run after attaching to the container (optional).
+    // "postAttachCommand": "containerlab version",
+
+    // VS Code specific settings
+    "customizations": {
+        "vscode": {
+            // Extensions recommended for this environment
+            "extensions": [
+                "ms-azuretools.vscode-docker",    // Docker management
+                "redhat.vscode-yaml",             // YAML editing (for topology files)
+                "ms-vscode-remote.remote-containers" // Core Dev Containers extension (should be installed anyway)
+            ],
+            // Settings to apply inside the container
+            "settings": {
+                "terminal.integrated.defaultProfile.linux": "zsh", // Use Zsh if installed
+                "terminal.integrated.profiles.linux": {
+                    "zsh": {
+                        "path": "/usr/bin/zsh"
+                    }
+                }
+            }
+        }
+    },
+
+    // Forward ports if needed (e.g., if Containerlab exposes specific services)
+    // "forwardPorts": [],
+
+    // Mount the workspace folder into the container
+    "workspaceFolder": "/workspace",
+    "workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind,consistency=cached"
+}
