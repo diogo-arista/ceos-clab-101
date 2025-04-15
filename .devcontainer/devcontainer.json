@@ -45,10 +45,9 @@
        "PATH": "/home/admin/ansible-venv/bin:${containerEnv:PATH}"
     },
 
-    // Commands to run after the container is created.
-    // Combined into a single string, separated by '&&'.
-    // Modified the echo commands writing to .zshrc for reliability.
-    "postCreateCommand": "sudo bash -c \"$(curl -sL https://get.containerlab.dev)\" && sudo mkdir -p /home/admin/ansible-venv && sudo chown admin:admin /home/admin/ansible-venv && python3 -m venv /home/admin/ansible-venv && bash -c 'source /home/admin/ansible-venv/bin/activate && pip install --upgrade pip && pip install ansible-core==2.15.* pyavd pyeapi netaddr yamllint ansible-lint && ansible-galaxy collection install arista.avd arista.eos && echo \"Python venv created and Ansible/AVD installed.\" && echo \"\" >> /home/admin/.zshrc && echo \"# Activate Ansible virtual environment\" >> /home/admin/.zshrc && echo \"source /home/admin/ansible-venv/bin/activate\" >> /home/admin/.zshrc && echo \"Post-create setup finished.\"'",
+    // Command to run after the container is created.
+    // Executes the post-create setup script located in the same directory.
+    "postCreateCommand": "bash .devcontainer/post-create.sh",
 
     // Commands to run after attaching to the container (optional).
     // "postAttachCommand": "containerlab version && ansible --version",

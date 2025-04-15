@@ -4,7 +4,7 @@ topology:
   # Optional: Define defaults for node kinds
   kinds:
     ceos:
-      image: ceos:4.33.2F # Default image for 'ceos' kind
+      image: ceos:latest # Default image for 'ceos' kind
 
   # Mandatory: Define nodes under the 'nodes:' key
   nodes:
