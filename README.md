@@ -1,49 +1,80 @@
-## Generating and Using an Arista API Token for Downloads
+# cEOS-lab on Containerlab Dev Container Environment 
 
-This guide explains how to generate an API access token from the Arista customer portal. This token allows tools (like `ardl`) to programmatically access Arista resources, such as downloading software images (like cEOS), without requiring manual login via a browser. This is particularly useful for automated setups like Dev Containers or CI/CD pipelines.
+This repository provides a ready-to-use development environment for working with Arista Validated Designs (AVD) and Containerlab, leveraging VS Code Dev Containers. It includes Ansible, PyAVD, Containerlab, Docker-in-Docker, and necessary dependencies, all configured within a container.
 
-**Prerequisites:**
+## Features
 
-* An active user account on the Arista customer portal (`https://www.arista.com/`).
+* **Reproducible Environment:** Ensures all developers use the same set of tools and dependency versions.
+* **Containerlab Ready:** Includes Containerlab and Docker-in-Docker for deploying virtual network labs.
+* **AVD Pre-configured:** Installs `ansible-core`, `pyavd`, `arista.avd`, `arista.eos`, and required Python libraries with compatible versions pinned.
+* **Python Virtual Environment:** Uses a dedicated Python venv (`ansible-venv`) which is automatically activated in the terminal.
+* **VS Code Integration:** Configured settings for Python and Ansible extensions (requires `redhat.ansible` extension to be installed).
+* **Automatic cEOS Import:** Includes a script to automatically import a local Arista cEOS image (`.tar`, `.tar.gz`, `.tar.xz`) into the container's Docker environment on the first build.
 
-**Steps:**
+## Prerequisites
 
-1.  **Log In to Arista Portal:**
-    * Open your web browser and navigate to `https://www.arista.com/`.
-    * Log in using your registered customer account credentials.
+1.  **VS Code:** Install the latest version of Visual Studio Code.
+2.  **VS Code Remote - Containers Extension:** Install the `ms-vscode-remote.remote-containers` extension from the VS Code Marketplace.
+3.  **Podman:** Install Podman and Podman Desktop (optional but helpful). Ensure the Podman machine is running (`podman machine start`). *Note: While the Dev Container aims for compatibility, running privileged Docker-in-Docker containers might require specific Podman configurations or encounter nuances.*
+4.  **Arista cEOS Image:** You need a cEOS lab image file (e.g., `cEOS-lab-4.xx.x.tar.xz`). Download this from your Arista account. **This file must be placed in the root directory of this repository *before* building the Dev Container for the first time.**
 
-2.  **Navigate to Token Generation:**
-    * Once logged in, locate your user profile area. This is typically accessed by clicking your username or profile icon, usually found in the top-right corner of the page.
-    * Look for a menu item related to your profile, account settings, or specifically **"Access Tokens"** or **"API Access"**. Click on it.
-    * *(Note: Website layouts can change, so you may need to explore the profile/account sections slightly if the exact naming differs.)*
+## Setup Instructions
 
-3.  **Generate a New Token:**
-    * Within the Access Tokens section, look for an option like **"Generate Token"**, **"Create New Token"**, or similar. Click it.
-    * You will likely be prompted to give the token a descriptive **name** (e.g., `Codespaces-Download-Token`, `DevContainer-Token`). Choose a name that helps you remember its purpose.
-    * You might be asked to set **permissions** or **scopes**. For downloading software, ensure the token has the necessary read/download permissions related to software entitlements or downloads.
-    * You may also be able to set an **expiration date**. It's good security practice to set an expiration date appropriate for your needs.
+Follow the instructions for your preferred environment (Podman Desktop or GitHub Codespaces):
 
-4.  **Copy the Token Immediately:**
-    * After confirming the details, the portal will generate the token.
-    * **IMPORTANT:** The token secret (the actual long string of characters) is typically shown **only once** immediately after generation for security reasons.
-    * **Copy the entire token value** carefully and immediately store it in a secure location (like a password manager). Do not close the window or navigate away until you have copied it. If you lose it, you will need to generate a new one.
+### Option 1: Local Development (Podman Desktop)
 
-5.  **Configure Token as a GitHub Codespaces Secret:**
-    * Navigate to the GitHub repository where you are using Codespaces.
-    * Click on the repository's **"Settings"** tab.
-    * In the left sidebar, under "Security", click **"Secrets and variables"** > **"Codespaces"**.
-    * Click the **"New repository secret"** button.
-    * In the **"Name"** field, enter `ARISTA_TOKEN`. It's important to use this exact name if you intend to use it with the `devcontainer.json` configurations we discussed previously (which referenced `${localEnv:ARISTA_TOKEN}` or a secret named `ARISTA_TOKEN`).
-    * In the **"Value"** field, paste the Arista API token you copied in Step 4.
-    * Click **"Add secret"**.
+*Ensure Podman is installed and the Podman machine is running (`podman machine start`).*
 
-**Security Considerations:**
+1.  **Clone Repository:** Clone this repository to your local machine.
+    ```bash
+    git clone <your-repository-url>
+    cd <repository-directory>
+    ```
+2.  **Place cEOS Image:** Copy your downloaded cEOS image file (e.g., `cEOS-lab-4.xx.x.tar.xz`) into the root directory of the cloned repository.
+3.  **Configure VS Code (If Needed):** The Remote - Containers extension usually detects Podman automatically. If you encounter issues, you might need to tell VS Code to use Podman:
+    * Open VS Code Settings (`Cmd+,` or `Ctrl+,`).
+    * Search for `docker path`.
+    * Under "Remote > Containers > Docker Path", set it to `podman` (or the full path to your Podman executable if it's not in the system PATH).
+4.  **Open in VS Code:** Open the repository folder (`<repository-directory>`) in VS Code.
+5.  **Reopen in Container:** VS Code should prompt you to reopen in a container: "Folder contains a Dev Container configuration file. Reopen folder to develop in a container." Click **"Reopen in Container"**.
+    * Alternatively, use the Command Palette (`Cmd+Shift+P` or `Ctrl+Shift+P`) and run **"Remote-Containers: Reopen in Container"**.
+6.  **Build Process:** VS Code (using Podman) will build the image and start the container. Monitor the logs for progress. This might take several minutes on the first run. *Note: If you encounter issues related to privileged operations or Docker-in-Docker, consult Podman documentation regarding running privileged containers within its virtual machine.*
 
-* **Treat your API token like a password.** Keep it confidential.
-* **Do not** commit the token directly into your source code, `devcontainer.json`, or any other file in your Git repository. Use the Codespaces secrets mechanism as described above.
-* Use tokens with appropriate permissions and expiration dates.
-* Revoke tokens if they are compromised or no longer needed.
+### Option 2: GitHub Codespaces
 
----
+1.  **Place cEOS Image:**
+    * Commit your downloaded cEOS image file (e.g., `cEOS-lab-4.xx.x.tar.xz`) to the root directory of the repository *before* creating the Codespace. This ensures it's available when the Codespace builds.
+    * *Alternatively*, you can upload the image to the Codespace *after* it starts, but you will need to manually run the import command inside the Codespace terminal: `docker import /workspace/<your-ceos-image-file.tar.xz> ceos:latest && rm /workspace/<your-ceos-image-file.tar.xz>`
+2.  **Create Codespace:** Navigate to the repository on GitHub. Click the **"< > Code"** button, go to the **"Codespaces"** tab, and click **"Create codespace on main"** (or your desired branch).
+3.  **Build Process:** GitHub will create and configure the Codespace based on the `devcontainer.json` file. This includes building the container, running the `post-create.sh` script, and importing the cEOS image (if present).
+4.  **Connect:** Once ready, the Codespace will open directly in your browser or you can connect using VS Code Desktop.
 
-Once you have generated the token and added it as a Codespaces secret named `ARISTA_TOKEN`, a Dev Container environment launched in that repository could potentially access it as an environment variable, allowing tools like `ardl` to authenticate and download images automatically during the build process (if the `devcontainer.json` and setup scripts were configured to do so).
+## Using the Environment
+
+* **Terminal:** Open a new terminal in VS Code (`Terminal > New Terminal`). The Python virtual environment (`ansible-venv`) should be automatically activated, indicated by `(ansible-venv)` in the prompt.
+* **Tools:** `ansible`, `ansible-galaxy`, `ansible-lint`, `yamllint`, `containerlab`, and `docker` commands are available directly in the terminal.
+* **cEOS Image:** If the import script ran successfully during the build, you can verify the image exists within the container's Docker environment:
+    ```bash
+    docker images ceos:latest
+    ```
+* **Containerlab:** You can now use Containerlab to deploy topologies defined in `.clab.yml` files:
+    ```bash
+    # Example: Deploy a topology defined in topology.clab.yml
+    containerlab deploy -t topology.clab.yml
+
+    # List running lab containers
+    containerlab inspect
+
+    # Destroy the lab
+    containerlab destroy -t topology.clab.yml --cleanup
+    ```
+* **Ansible/AVD:** Run your Ansible playbooks as usual. The environment is configured to use the correct Python interpreter and collections.
+
+## Troubleshooting
+
+* **Slow Build:** The initial build can be slow due to downloads and installations. Subsequent starts should be faster.
+* **cEOS Import Failed:** Ensure the cEOS image file was placed in the repository root *before* the first build. Check the build logs (`Dev Containers: Show Container Log`) for errors during the import step in `post-create.sh`. You can manually import it later if needed (see Codespaces alternative step).
+* **Podman Issues:** Privileged operations needed by Docker-in-Docker can sometimes be tricky with Podman setups. Consult Podman documentation or community forums if you face permission errors. Ensure your Podman machine is configured appropriately.
+* **Resource Limits:** Running multiple cEOS nodes is resource-intensive (CPU/RAM). Ensure your local machine or Codespace instance has sufficient resources (16GB+ RAM recommended). Check the `hostRequirements` in `devcontainer.json`.
+
