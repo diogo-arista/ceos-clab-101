@@ -18,8 +18,8 @@ This repository provides a ready-to-use development environment for working with
 3.  **Podman:** Install Podman and Podman Desktop (optional but helpful). Ensure the Podman machine is running (`podman machine start`). *Note: While the Dev Container aims for compatibility, running privileged Docker-in-Docker containers might require specific Podman configurations or encounter nuances.*
 4.  **Arista cEOS Image:** You need a cEOS lab image file (e.g., `cEOS-lab-4.xx.x.tar.xz`). Download this from your Arista account.
     * **Architecture Note:** It is crucial to download the correct image for your host system's architecture:
-        * **macOS (Apple Silicon M1/M2/M3):** You **must** download the **ARM64 (aarch64)** version of the cEOS-lab image. Using the x86_64 image on Apple Silicon via emulation will likely result in poor performance or errors.
-        * **Windows / GitHub Codespaces:** Use the standard **x86_64** version of the cEOS-lab image, as these environments typically run on or emulate x86_64 architecture.
+        * **macOS (Apple Silicon M1/M2/M3/M4):** You **must** download the **ARM64 (aarch64)** version of the cEOS-lab image. 
+        * **x86 Windows / GitHub Codespaces:** Use the standard **x86_64** version of the cEOS-lab image, as these environments typically run on or emulate x86_64 architecture.
     * **Placement:** This file must be placed in the root directory of this repository *before* building the Dev Container for the first time so the automatic import script can find it.
 
 ## Setup Instructions
