@@ -49,14 +49,17 @@
     "postCreateCommand": "bash .devcontainer/post-create.sh",
     // Commands to run after attaching to the container (optional).
     // "postAttachCommand": "containerlab version && ansible --version",
+
     // VS Code specific settings
     "customizations": {
         "vscode": {
             // Extensions recommended for this environment
             "extensions": [
-                "ms-azuretools.vscode-docker", // Docker management
-                "ms-vscode-remote.remote-containers", // Core Dev Containers extension
-                "ms-python.python", // Python support (intellisense, debugging)
+                "ms-azuretools.vscode-docker",         // Docker management
+                "ms-vscode-remote.remote-containers",  // Core Dev Containers extension
+                "ms-python.python",                    // Python support (intellisense, debugging)
+                // "redhat.ansible",                   // Ansible support - Removed due to potential conflict with topology.yml formatting. Add back if needed.
+                "containerlab.containerlab-vscode"     // Containerlab extension
             ],
             // Settings to apply inside the container
             "settings": {
@@ -71,18 +74,30 @@
                 "python.linting.enabled": true,
                 "python.linting.pylintEnabled": false, // Using ansible-lint/yamllint primarily
                 "python.linting.flake8Enabled": false, // Using ansible-lint/yamllint primarily
-                // Ansible extension settings
-                "ansible.python.interpreterPath": "/home/admin/ansible-venv/bin/python", // Tell Ansible extension about venv python
-                // Explicitly tell the Ansible extension where to find ansible-lint
-                "ansible.ansibleLint.path": "/home/admin/ansible-venv/bin/ansible-lint",
-                // Explicitly tell the Ansible extension where to find ansible (might help locate ansible-config)
-                "ansible.path": "/home/admin/ansible-venv/bin/ansible",
+
+                // Settings for Ansible extension (if it were installed)
+                // "ansible.python.interpreterPath": "/home/admin/ansible-venv/bin/python",
+                // "ansible.ansibleLint.path": "/home/admin/ansible-venv/bin/ansible-lint",
+                // "ansible.path": "/home/admin/ansible-venv/bin/ansible"
+
+                // Ensure generic YAML files are handled by the default YAML handler
+                "[yaml]": {
+                    "editor.defaultFormatter": "redhat.vscode-yaml" // Assuming redhat.vscode-yaml is installed or use another default YAML formatter
+                },
+                // Explicitly associate .clab.yml files with YAML if needed,
+                // though usually not necessary if not overriding defaults elsewhere.
+                // "files.associations": {
+                //     "*.clab.yml": "yaml",
+                //     "topology.yml": "yaml"
+                // }
             }
         }
     },
     // Forward ports if needed (e.g., if Containerlab exposes specific services)
     // "forwardPorts": [],
+
     // Mount the workspace folder into the container
     "workspaceFolder": "/workspace",
     "workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind,consistency=cached"
 }
+
