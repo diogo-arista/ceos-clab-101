@@ -1,4 +1,4 @@
-# Arista AVD & Containerlab Dev Container Environment
+# Containerlab Dev Container Environment
 
 This repository provides a ready-to-use development environment for working with Arista Validated Designs (AVD) and Containerlab, leveraging VS Code Dev Containers. It includes Ansible, PyAVD, Containerlab, Docker-in-Docker, and necessary dependencies, all configured within a container.
 
