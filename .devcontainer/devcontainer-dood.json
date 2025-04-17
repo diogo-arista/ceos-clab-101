@@ -1,0 +1,96 @@
+// .devcontainer/devcontainer-dood.json
+// Configuration for running with Docker-outside-of-Docker (uses host Docker/Podman daemon)
+{
+    // Name for the Dev Container configuration
+    "name": "Containerlab + Ansible AVD - Docker-outside-of-Docker",
+
+    // Use a minimal Ubuntu base image provided by Microsoft for dev containers.
+    "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
+
+    // Features to add to the container.
+    "features": {
+        // Installs common utilities (git, curl, etc.), creates 'admin' user with sudo access.
+        "ghcr.io/devcontainers/features/common-utils:2": {
+            "username": "admin",
+            "uid": "1000",
+            "gid": "1000",
+            "installZsh": "true",
+            "installOhMyZsh": "true",
+            "upgradePackages": "true"
+        },
+        // Installs Docker/Podman CLI and mounts the host's Docker/Podman socket.
+        "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {
+            "version": "latest"
+            // This feature handles installing the CLI and mounting the socket correctly
+            // whether you are using Docker Desktop or Podman on the host.
+        },
+        // Installs Python, pip, and virtual environment tools.
+        "ghcr.io/devcontainers/features/python:1": {
+            "version": "3.11",
+            "installTools": true
+        }
+    },
+
+    // NOTE: --privileged is removed as it's primarily needed for Docker-in-Docker.
+    // "runArgs": [], // Keep empty unless specific args are needed
+
+    // Set the default user for the container and VS Code terminal.
+    "remoteUser": "admin",
+
+    // Set environment variables specifically for VS Code and its processes.
+    "remoteEnv": {
+        "PATH": "/home/admin/ansible-venv/bin:${containerEnv:PATH}"
+    },
+
+    "hostRequirements": {
+        "cpus": 4,
+        "memory": "16gb", // May need less RAM compared to DinD, but depends on lab size
+        "storage": "32gb"
+      },
+
+    // Command to run after the container is created.
+    // Executes the same post-create setup script.
+    // The script's docker commands will now talk to the host daemon.
+    "postCreateCommand": "bash .devcontainer/post-create.sh",
+
+    // VS Code specific settings
+    "customizations": {
+        "vscode": {
+            // Extensions recommended for this environment
+            "extensions": [
+                "ms-azuretools.vscode-docker",         // Docker management (will connect to host Docker)
+                "ms-vscode-remote.remote-containers",  // Core Dev Containers extension
+                "ms-python.python",                    // Python support
+                "containerlab.containerlab-vscode"     // Containerlab extension
+                // "redhat.ansible",                   // Optional Ansible support
+            ],
+            // Settings to apply inside the container
+            "settings": {
+                "terminal.integrated.defaultProfile.linux": "zsh",
+                "terminal.integrated.profiles.linux": {
+                    "zsh": {
+                        "path": "/usr/bin/zsh"
+                    }
+                },
+                "python.defaultInterpreterPath": "/home/admin/ansible-venv/bin/python",
+                "python.linting.enabled": true,
+                "python.linting.pylintEnabled": false,
+                "python.linting.flake8Enabled": false,
+
+                // Ensure generic YAML files are handled by the default YAML handler
+                "[yaml]": {
+                    "editor.defaultFormatter": "redhat.vscode-yaml"
+                }
+                // Ansible settings would go here if redhat.ansible were added
+            }
+        }
+    },
+
+    // Mount the workspace folder into the container
+    "workspaceFolder": "/workspace",
+    "workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind,consistency=cached"
+
+    // The docker-outside-of-docker feature handles mounting the Docker/Podman socket.
+    // No need for manual mounts here.
+}
+
