@@ -1,4 +1,5 @@
 // .devcontainer/devcontainer.json
+// Configuration for running with Docker-in-Docker
 {
     // Name for the Dev Container configuration
     "name": "Containerlab + Ansible AVD Dev Environment",
@@ -47,8 +48,8 @@
     // Command to run after the container is created.
     // Executes the post-create setup script located in the same directory.
     "postCreateCommand": "bash .devcontainer/post-create.sh",
-    // Commands to run after attaching to the container (optional).
-    // "postAttachCommand": "containerlab version && ansible --version",
+
+    // postAttachCommand removed - using tasks.json instead
 
     // VS Code specific settings
     "customizations": {
@@ -100,4 +101,3 @@
     "workspaceFolder": "/workspace",
     "workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind,consistency=cached"
 }
-

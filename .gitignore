@@ -8,9 +8,6 @@
 # Dev Container specific build/cache files
 .devcontainer/cache/
 
-# Containerlab specific output (adjust if needed)
-clab-*/
-
 # OS specific files
 .DS_Store
 Thumbs.db
@@ -85,3 +82,17 @@ override.tf.json
 *_override.tf.json
 .terraformrc
 terraform.rc
+
+# Ignore Arista cEOS lab image files (tar, tar.gz, tar.xz)
+# These are large binary files imported into Docker/Podman and should not be committed.
+[cC]EOS*.tar
+[cC]EOS*.tar.gz
+[cC]EOS*.tar.xz
+
+# You might want to add other common ignores below:
+# Example: Python virtual environment directory defined in post-create.sh
+# (Though it's outside the workspace mount by default in this setup)
+# ansible-venv/
+
+# Example: Containerlab topology files directory (if created)
+clab-*/
