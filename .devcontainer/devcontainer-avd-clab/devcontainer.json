@@ -1,0 +1,80 @@
+// .devcontainer/devcontainer-prebuilt.json
+// Configuration using a pre-built image with AVD and Containerlab
+{
+    // Name for the Dev Container configuration
+    "name": "AC Labs Base (Python 3.11, AVD 5.1.0, Clab 0.60.1)",
+
+    // Use the specified pre-built image from Arista ACLabs
+    "image": "ghcr.io/aristanetworks/aclabs/lab-base:python3.11-avd-v5.1.0-clab0.60.1-rev1.1",
+
+    // Features to add to the container.
+    "features": {
+        // common-utils feature removed - assuming 'avd' user exists in base image.
+        // Add back if specific tools from it are needed, configured not to create a user.
+
+        // Installs Docker-in-Docker. Assumes you want DinD.
+        // Remove this and add docker-outside-of-docker feature if you prefer DooD.
+        "ghcr.io/devcontainers/features/docker-in-docker:2": {
+            "version": "latest",
+            "moby": true,
+            "installDockerBuildx": true,
+            "installDockerComposeSwitch": true
+        }
+        // Python feature removed - Python 3.11 is already in the base image.
+    },
+
+    // Run container in privileged mode - necessary for Docker-in-Docker. Remove if using DooD.
+    "runArgs": [
+        "--privileged"
+    ],
+
+    // Set the default user for the container and VS Code terminal to 'avd'
+    "remoteUser": "avd",
+
+    // remoteEnv for venv PATH removed - AVD/clab tools should be in the image's PATH for the 'avd' user.
+
+    "hostRequirements": {
+        "cpus": 4,
+        "memory": "16gb",
+        "storage": "32gb"
+      },
+
+    // Command to run after the container is created.
+    // Points to a simplified script.
+    "postCreateCommand": "bash .devcontainer/post-create-simplified.sh",
+
+    // VS Code specific settings
+    "customizations": {
+        "vscode": {
+            // Extensions recommended for this environment
+            "extensions": [
+                "ms-azuretools.vscode-docker",         // Docker management
+                "ms-vscode-remote.remote-containers",  // Core Dev Containers extension
+                "ms-python.python",                    // Python support (useful even with pre-installed Python)
+                "containerlab.containerlab-vscode"     // Containerlab extension
+                // "redhat.ansible",                   // Optional: Ansible support
+            ],
+            // Settings to apply inside the container
+            "settings": {
+                // Assuming zsh is the default shell for the 'avd' user in the image.
+                // Adjust if needed after inspecting the image/container.
+                // "terminal.integrated.defaultProfile.linux": "zsh",
+                // "terminal.integrated.profiles.linux": {
+                //     "zsh": {
+                //         "path": "/bin/zsh"
+                //     }
+                // },
+
+                // Python/Ansible venv paths removed. Extensions should auto-detect system paths.
+                // Ensure generic YAML files are handled by the default YAML handler
+                "[yaml]": {
+                    "editor.defaultFormatter": "redhat.vscode-yaml" // Assuming redhat.vscode-yaml is installed
+                }
+            }
+        }
+    },
+
+    // Mount the workspace folder into the container
+    "workspaceFolder": "/workspace",
+    "workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind,consistency=cached"
+}
