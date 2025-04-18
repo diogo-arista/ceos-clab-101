@@ -7,20 +7,41 @@ set -e
 
 echo "--- Starting Simplified Post-Create Setup ---"
 
-# [1/3] Configure passwordless sudo for the 'avd' user
+# [1/4] Configure passwordless sudo for the 'avd' user
 # This allows running commands like 'sudo clab ...' without a password prompt.
 # Note: This assumes the 'avd' user exists and 'sudo' is installed in the base image.
-echo "[1/3] Configuring passwordless sudo for user 'avd'..."
-if ! sudo grep -q "%avd ALL=(ALL) NOPASSWD: ALL" /etc/sudoers.d/avd-nopasswd; then
-    echo "avd ALL=(ALL) NOPASSWD: ALL" | sudo tee /etc/sudoers.d/avd-nopasswd > /dev/null
-    sudo chmod 0440 /etc/sudoers.d/avd-nopasswd
+echo "[1/4] Configuring passwordless sudo for user 'avd'..."
+# Check using grep without % and ensure the line starts correctly
+SUDOERS_LINE="avd ALL=(ALL) NOPASSWD: ALL"
+SUDOERS_FILE="/etc/sudoers.d/avd-nopasswd"
+if ! sudo grep -qxF "${SUDOERS_LINE}" "${SUDOERS_FILE}" > /dev/null 2>&1; then
+    echo "${SUDOERS_LINE}" | sudo tee "${SUDOERS_FILE}" > /dev/null
+    sudo chmod 0440 "${SUDOERS_FILE}"
     echo "Passwordless sudo configured."
 else
     echo "Passwordless sudo already configured for user 'avd'."
 fi
 
-# [2/3] Create ansible.cfg if it doesn't exist in the workspace
-echo "[2/3] Checking for ansible.cfg..."
+# [2/4] Add 'clab' alias to run containerlab with sudo automatically
+echo "[2/4] Adding 'clab' alias to /home/avd/.zshrc ..."
+ZSHRC_FILE="/home/avd/.zshrc"
+ALIAS_LINE="alias clab='sudo clab'"
+# Check if the alias line already exists
+if ! grep -qxF "${ALIAS_LINE}" "${ZSHRC_FILE}" > /dev/null 2>&1; then
+    # Ensure .zshrc exists and is owned by avd (might not exist in minimal base images)
+    sudo touch "${ZSHRC_FILE}"
+    sudo chown avd:$(id -gn avd) "${ZSHRC_FILE}"
+    # Add the alias
+    echo "" >> "${ZSHRC_FILE}" # Add newline for separation
+    echo "# Alias to run containerlab with sudo automatically" >> "${ZSHRC_FILE}"
+    echo "${ALIAS_LINE}" >> "${ZSHRC_FILE}"
+    echo "'clab' alias added to ${ZSHRC_FILE}."
+else
+    echo "'clab' alias already exists in ${ZSHRC_FILE}."
+fi
+
+# [3/4] Create ansible.cfg if it doesn't exist in the workspace
+echo "[3/4] Checking for ansible.cfg..."
 if [ ! -f "/workspace/ansible.cfg" ]; then
   echo "ansible.cfg not found in /workspace. Creating recommended version..."
   # Create ansible.cfg with recommended AVD settings
@@ -62,8 +83,8 @@ else
 fi
 
 
-# [3/3] Attempt to auto-import local cEOS image if present and remove original
-echo "[3/3] Checking for local cEOS image file in /workspace..."
+# [4/4] Attempt to auto-import local cEOS image if present and remove original
+echo "[4/4] Checking for local cEOS image file in /workspace..."
 # Search for files like cEOS*.tar, cEOS*.tar.gz, cEOS*.tar.xz case-insensitively
 IMAGE_FILE=$(find /workspace -maxdepth 1 -regextype posix-extended -iregex "/workspace/[cC]EOS.*\.tar(\.gz|\.xz)?" -print -quit)
 

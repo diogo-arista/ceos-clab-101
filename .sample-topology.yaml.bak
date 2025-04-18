@@ -1,0 +1,22 @@
+name: sample
+prefix: "" 
+topology:
+  # Optional: Define defaults for node kinds
+  kinds:
+    ceos:
+      image: ceos:latest # Default image for 'ceos' kind
+
+  # Mandatory: Define nodes under the 'nodes:' key
+  nodes:
+    # Node names are the keys here (e.g., ceos1, leaf1, etc.)
+    ceos1: # <--- This is a node definition
+      kind: ceos # Use the 'ceos' kind (inherits image from 'kinds')
+      # Add other node-specific properties here if needed
+
+    ceos2: # <--- This is another node definition
+      kind: ceos
+      # Add other node-specific properties here if needed
+
+  # Optional: Define links under the 'links:' key
+  links:
+    - endpoints: ["ceos1:eth1", "ceos2:eth1"]

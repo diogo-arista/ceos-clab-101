@@ -51,7 +51,7 @@
                 "ms-azuretools.vscode-docker",         // Docker management
                 "ms-vscode-remote.remote-containers",  // Core Dev Containers extension
                 "ms-python.python",                    // Python support (useful even with pre-installed Python)
-                "containerlab.containerlab-vscode"     // Containerlab extension
+                "srl-labs.vscode-containerlab"     // Containerlab extension
                 // "redhat.ansible",                   // Optional: Ansible support
             ],
             // Settings to apply inside the container
@@ -68,7 +68,7 @@
                 // Python/Ansible venv paths removed. Extensions should auto-detect system paths.
                 // Ensure generic YAML files are handled by the default YAML handler
                 "[yaml]": {
-                    "editor.defaultFormatter": "redhat.vscode-yaml" // Assuming redhat.vscode-yaml is installed
+                    //"editor.defaultFormatter": "redhat.vscode-yaml" // Assuming redhat.vscode-yaml is installed
                 }
             }
         }

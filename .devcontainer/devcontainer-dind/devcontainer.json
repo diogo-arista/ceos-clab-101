@@ -60,7 +60,7 @@
                 "ms-vscode-remote.remote-containers",  // Core Dev Containers extension
                 "ms-python.python",                    // Python support (intellisense, debugging)
                 // "redhat.ansible",                   // Ansible support - Removed due to potential conflict with topology.yml formatting. Add back if needed.
-                "containerlab.containerlab-vscode"     // Containerlab extension
+                "srl-labs.vscode-containerlab"     // Containerlab extension
             ],
             // Settings to apply inside the container
             "settings": {
